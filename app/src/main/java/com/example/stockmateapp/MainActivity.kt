@@ -30,6 +30,8 @@ import com.example.stockmateapp.ui.navigation.Routes
 import com.example.stockmateapp.ui.products.ProductDetailScreen
 import com.example.stockmateapp.ui.products.ProductFormScreen
 import com.example.stockmateapp.ui.products.ProductListScreen
+import com.example.stockmateapp.ui.warehouses.WarehouseListScreen
+import com.example.stockmateapp.ui.warehouses.WarehouseStockScreen
 import com.example.stockmateapp.ui.theme.StockMateAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -71,7 +73,21 @@ fun AppNavHost(startDestination: String) {
             )
         }
         composable(Routes.DASHBOARD) {
-            DashboardPlaceholder(onProductsClick = { navController.navigate(Routes.PRODUCT_LIST) })
+            DashboardPlaceholder(
+                onProductsClick = { navController.navigate(Routes.PRODUCT_LIST) },
+                onWarehousesClick = { navController.navigate(Routes.WAREHOUSE_LIST) }
+            )
+        }
+        composable(Routes.WAREHOUSE_LIST) {
+            WarehouseListScreen(
+                onWarehouseClick = { navController.navigate(Routes.warehouseStock(it)) }
+            )
+        }
+        composable(
+            Routes.WAREHOUSE_STOCK,
+            arguments = listOf(navArgument("warehouseId") { type = NavType.IntType })
+        ) {
+            WarehouseStockScreen(onBack = { navController.popBackStack() })
         }
         composable(Routes.PRODUCT_LIST) {
             ProductListScreen(
@@ -108,7 +124,10 @@ fun AppNavHost(startDestination: String) {
 }
 
 @Composable
-fun DashboardPlaceholder(onProductsClick: () -> Unit = {}) {
+fun DashboardPlaceholder(
+    onProductsClick: () -> Unit = {},
+    onWarehousesClick: () -> Unit = {}
+) {
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
         verticalArrangement = Arrangement.Center,
@@ -118,6 +137,10 @@ fun DashboardPlaceholder(onProductsClick: () -> Unit = {}) {
         Spacer(modifier = Modifier.height(24.dp))
         Button(onClick = onProductsClick, modifier = Modifier.fillMaxWidth()) {
             Text("Товары")
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Button(onClick = onWarehousesClick, modifier = Modifier.fillMaxWidth()) {
+            Text("Склады")
         }
     }
 }

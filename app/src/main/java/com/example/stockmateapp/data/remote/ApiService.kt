@@ -69,4 +69,20 @@ class ApiService(private val client: HttpClient, private val baseUrl: String) {
     suspend fun deleteProduct(id: Int) {
         client.delete("$baseUrl/api/v1/products/$id")
     }
+
+    // Warehouses
+    suspend fun getWarehouses(): List<WarehouseDto> =
+        client.get("$baseUrl/api/v1/warehouses").body()
+
+    suspend fun getWarehouseStock(
+        warehouseId: Int, page: Int = 1, size: Int = 30,
+        search: String? = null, lowStockOnly: Boolean = false
+    ): StockListResponse {
+        return client.get("$baseUrl/api/v1/warehouses/$warehouseId/stock") {
+            parameter("page", page)
+            parameter("size", size)
+            if (search != null) parameter("search", search)
+            if (lowStockOnly) parameter("low_stock", "true")
+        }.body()
+    }
 }
