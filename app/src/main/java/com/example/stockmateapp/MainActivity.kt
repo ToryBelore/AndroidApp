@@ -32,6 +32,8 @@ import com.example.stockmateapp.ui.products.ProductFormScreen
 import com.example.stockmateapp.ui.products.ProductListScreen
 import com.example.stockmateapp.ui.operations.DocumentDetailScreen
 import com.example.stockmateapp.ui.operations.DocumentListScreen
+import com.example.stockmateapp.ui.reports.DashboardScreen
+import com.example.stockmateapp.ui.requests.RequestListScreen
 import com.example.stockmateapp.ui.warehouses.WarehouseListScreen
 import com.example.stockmateapp.ui.warehouses.WarehouseStockScreen
 import com.example.stockmateapp.ui.theme.StockMateAppTheme
@@ -75,11 +77,14 @@ fun AppNavHost(startDestination: String) {
             )
         }
         composable(Routes.DASHBOARD) {
-            DashboardPlaceholder(
+            DashboardScreen(
                 onProductsClick = { navController.navigate(Routes.PRODUCT_LIST) },
                 onWarehousesClick = { navController.navigate(Routes.WAREHOUSE_LIST) },
                 onDocumentsClick = { navController.navigate(Routes.DOCUMENT_LIST) }
             )
+        }
+        composable(Routes.REQUESTS) {
+            RequestListScreen(onBack = { navController.popBackStack() })
         }
         composable(Routes.DOCUMENT_LIST) {
             DocumentListScreen(
@@ -138,23 +143,4 @@ fun AppNavHost(startDestination: String) {
     }
 }
 
-@Composable
-fun DashboardPlaceholder(
-    onProductsClick: () -> Unit = {},
-    onWarehousesClick: () -> Unit = {},
-    onDocumentsClick: () -> Unit = {}
-) {
-    Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("StockMate", style = MaterialTheme.typography.headlineMedium)
-        Spacer(modifier = Modifier.height(24.dp))
-        Button(onClick = onProductsClick, modifier = Modifier.fillMaxWidth()) { Text("Товары") }
-        Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = onWarehousesClick, modifier = Modifier.fillMaxWidth()) { Text("Склады") }
-        Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = onDocumentsClick, modifier = Modifier.fillMaxWidth()) { Text("Операции") }
-    }
-}
+

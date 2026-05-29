@@ -98,6 +98,32 @@ class ApiService(private val client: HttpClient, private val baseUrl: String) {
     suspend fun cancelDocument(id: Int): DocumentDto =
         client.post("$baseUrl/api/v1/documents/$id/cancel").body()
 
+    // Reports
+    suspend fun getDashboard(): DashboardDto =
+        client.get("$baseUrl/api/v1/reports/dashboard").body()
+
+    suspend fun getStockReport(warehouseId: Int? = null): List<StockReportItem> =
+        client.get("$baseUrl/api/v1/reports/stock") {
+            if (warehouseId != null) parameter("warehouse_id", warehouseId)
+        }.body()
+
+    suspend fun getMovementReport(productId: Int? = null): List<MovementReportItem> =
+        client.get("$baseUrl/api/v1/reports/movement") {
+            if (productId != null) parameter("product_id", productId)
+        }.body()
+
+    // Replenishment requests
+    suspend fun getRequests(status: String? = null): List<ReplenishmentDto> =
+        client.get("$baseUrl/api/v1/requests") {
+            if (status != null) parameter("status", status)
+        }.body()
+
+    suspend fun createRequest(req: CreateReplenishmentRequest): ReplenishmentDto =
+        client.post("$baseUrl/api/v1/requests") {
+            contentType(ContentType.Application.Json)
+            setBody(req)
+        }.body()
+
     // Warehouses
     suspend fun getWarehouses(): List<WarehouseDto> =
         client.get("$baseUrl/api/v1/warehouses").body()

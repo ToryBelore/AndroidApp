@@ -18,4 +18,6 @@ object Routes {
     const val DOCUMENT_LIST = "documents"
     const val DOCUMENT_DETAIL = "documents/{documentId}"
     fun documentDetail(id: Int) = "documents/$id"
+
+    const val REQUESTS = "requests"
 }
