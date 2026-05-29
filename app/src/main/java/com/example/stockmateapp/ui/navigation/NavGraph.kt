@@ -14,4 +14,8 @@ object Routes {
     const val WAREHOUSE_LIST = "warehouses"
     const val WAREHOUSE_STOCK = "warehouses/{warehouseId}/stock"
     fun warehouseStock(id: Int) = "warehouses/$id/stock"
+
+    const val DOCUMENT_LIST = "documents"
+    const val DOCUMENT_DETAIL = "documents/{documentId}"
+    fun documentDetail(id: Int) = "documents/$id"
 }

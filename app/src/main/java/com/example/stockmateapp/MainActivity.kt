@@ -30,6 +30,8 @@ import com.example.stockmateapp.ui.navigation.Routes
 import com.example.stockmateapp.ui.products.ProductDetailScreen
 import com.example.stockmateapp.ui.products.ProductFormScreen
 import com.example.stockmateapp.ui.products.ProductListScreen
+import com.example.stockmateapp.ui.operations.DocumentDetailScreen
+import com.example.stockmateapp.ui.operations.DocumentListScreen
 import com.example.stockmateapp.ui.warehouses.WarehouseListScreen
 import com.example.stockmateapp.ui.warehouses.WarehouseStockScreen
 import com.example.stockmateapp.ui.theme.StockMateAppTheme
@@ -75,8 +77,21 @@ fun AppNavHost(startDestination: String) {
         composable(Routes.DASHBOARD) {
             DashboardPlaceholder(
                 onProductsClick = { navController.navigate(Routes.PRODUCT_LIST) },
-                onWarehousesClick = { navController.navigate(Routes.WAREHOUSE_LIST) }
+                onWarehousesClick = { navController.navigate(Routes.WAREHOUSE_LIST) },
+                onDocumentsClick = { navController.navigate(Routes.DOCUMENT_LIST) }
             )
+        }
+        composable(Routes.DOCUMENT_LIST) {
+            DocumentListScreen(
+                onDocumentClick = { navController.navigate(Routes.documentDetail(it)) },
+                onAddDocument = { }
+            )
+        }
+        composable(
+            Routes.DOCUMENT_DETAIL,
+            arguments = listOf(navArgument("documentId") { type = NavType.IntType })
+        ) {
+            DocumentDetailScreen(onBack = { navController.popBackStack() })
         }
         composable(Routes.WAREHOUSE_LIST) {
             WarehouseListScreen(
@@ -126,7 +141,8 @@ fun AppNavHost(startDestination: String) {
 @Composable
 fun DashboardPlaceholder(
     onProductsClick: () -> Unit = {},
-    onWarehousesClick: () -> Unit = {}
+    onWarehousesClick: () -> Unit = {},
+    onDocumentsClick: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
@@ -135,12 +151,10 @@ fun DashboardPlaceholder(
     ) {
         Text("StockMate", style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(24.dp))
-        Button(onClick = onProductsClick, modifier = Modifier.fillMaxWidth()) {
-            Text("Товары")
-        }
+        Button(onClick = onProductsClick, modifier = Modifier.fillMaxWidth()) { Text("Товары") }
         Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = onWarehousesClick, modifier = Modifier.fillMaxWidth()) {
-            Text("Склады")
-        }
+        Button(onClick = onWarehousesClick, modifier = Modifier.fillMaxWidth()) { Text("Склады") }
+        Spacer(modifier = Modifier.height(8.dp))
+        Button(onClick = onDocumentsClick, modifier = Modifier.fillMaxWidth()) { Text("Операции") }
     }
 }

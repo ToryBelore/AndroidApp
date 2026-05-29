@@ -70,6 +70,34 @@ class ApiService(private val client: HttpClient, private val baseUrl: String) {
         client.delete("$baseUrl/api/v1/products/$id")
     }
 
+    // Documents
+    suspend fun getDocuments(
+        page: Int = 1, size: Int = 30,
+        type: String? = null, status: String? = null
+    ): DocumentListResponse {
+        return client.get("$baseUrl/api/v1/documents") {
+            parameter("page", page)
+            parameter("size", size)
+            if (type != null) parameter("type", type)
+            if (status != null) parameter("status", status)
+        }.body()
+    }
+
+    suspend fun getDocument(id: Int): DocumentDto =
+        client.get("$baseUrl/api/v1/documents/$id").body()
+
+    suspend fun createDocument(req: CreateDocumentRequest): DocumentDto =
+        client.post("$baseUrl/api/v1/documents") {
+            contentType(ContentType.Application.Json)
+            setBody(req)
+        }.body()
+
+    suspend fun conductDocument(id: Int): DocumentDto =
+        client.post("$baseUrl/api/v1/documents/$id/conduct").body()
+
+    suspend fun cancelDocument(id: Int): DocumentDto =
+        client.post("$baseUrl/api/v1/documents/$id/cancel").body()
+
     // Warehouses
     suspend fun getWarehouses(): List<WarehouseDto> =
         client.get("$baseUrl/api/v1/warehouses").body()
