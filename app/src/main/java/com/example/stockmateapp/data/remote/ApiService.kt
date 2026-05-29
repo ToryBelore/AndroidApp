@@ -8,6 +8,7 @@ import io.ktor.http.*
 
 class ApiService(private val client: HttpClient, private val baseUrl: String) {
 
+    // Auth
     suspend fun login(email: String, password: String): LoginResponse {
         return client.post("$baseUrl/api/v1/auth/login") {
             contentType(ContentType.Application.Json)
@@ -27,5 +28,45 @@ class ApiService(private val client: HttpClient, private val baseUrl: String) {
             contentType(ContentType.Application.Json)
             setBody(RefreshRequest(refreshToken))
         }
+    }
+
+    // Categories & Units
+    suspend fun getCategories(): List<CategoryDto> =
+        client.get("$baseUrl/api/v1/categories").body()
+
+    suspend fun getUnits(): List<UnitDto> =
+        client.get("$baseUrl/api/v1/units").body()
+
+    // Products
+    suspend fun getProducts(
+        page: Int = 1, size: Int = 30,
+        search: String? = null, categoryId: Int? = null, sort: String? = null
+    ): ProductListResponse {
+        return client.get("$baseUrl/api/v1/products") {
+            parameter("page", page)
+            parameter("size", size)
+            if (search != null) parameter("search", search)
+            if (categoryId != null) parameter("category_id", categoryId)
+            if (sort != null) parameter("sort", sort)
+        }.body()
+    }
+
+    suspend fun getProduct(id: Int): ProductDto =
+        client.get("$baseUrl/api/v1/products/$id").body()
+
+    suspend fun createProduct(req: CreateProductRequest): ProductDto =
+        client.post("$baseUrl/api/v1/products") {
+            contentType(ContentType.Application.Json)
+            setBody(req)
+        }.body()
+
+    suspend fun updateProduct(id: Int, req: UpdateProductRequest): ProductDto =
+        client.put("$baseUrl/api/v1/products/$id") {
+            contentType(ContentType.Application.Json)
+            setBody(req)
+        }.body()
+
+    suspend fun deleteProduct(id: Int) {
+        client.delete("$baseUrl/api/v1/products/$id")
     }
 }
