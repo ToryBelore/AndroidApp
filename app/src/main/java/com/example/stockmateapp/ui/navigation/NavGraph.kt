@@ -21,4 +21,5 @@ object Routes {
 
     const val REQUESTS = "requests"
     const val SETTINGS = "settings"
+    const val NOTIFICATIONS = "notifications"
 }

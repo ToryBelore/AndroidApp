@@ -98,6 +98,20 @@ class ApiService(private val client: HttpClient, private val baseUrl: String) {
     suspend fun cancelDocument(id: Int): DocumentDto =
         client.post("$baseUrl/api/v1/documents/$id/cancel").body()
 
+    // Notifications
+    suspend fun getNotifications(unreadOnly: Boolean = false): List<NotificationDto> =
+        client.get("$baseUrl/api/v1/notifications") {
+            if (unreadOnly) parameter("unread_only", "true")
+        }.body()
+
+    suspend fun markNotificationRead(id: Int) {
+        client.patch("$baseUrl/api/v1/notifications/$id/read")
+    }
+
+    suspend fun markAllNotificationsRead() {
+        client.patch("$baseUrl/api/v1/notifications/read-all")
+    }
+
     // Reports
     suspend fun getDashboard(): DashboardDto =
         client.get("$baseUrl/api/v1/reports/dashboard").body()

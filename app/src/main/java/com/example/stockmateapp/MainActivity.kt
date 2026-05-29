@@ -34,6 +34,7 @@ import com.example.stockmateapp.ui.operations.DocumentDetailScreen
 import com.example.stockmateapp.ui.operations.DocumentListScreen
 import com.example.stockmateapp.ui.reports.DashboardScreen
 import com.example.stockmateapp.ui.requests.RequestListScreen
+import com.example.stockmateapp.ui.notifications.NotificationScreen
 import com.example.stockmateapp.ui.settings.SettingsScreen
 import com.example.stockmateapp.ui.warehouses.WarehouseListScreen
 import com.example.stockmateapp.ui.warehouses.WarehouseStockScreen
@@ -86,6 +87,9 @@ fun AppNavHost(startDestination: String) {
         }
         composable(Routes.REQUESTS) {
             RequestListScreen(onBack = { navController.popBackStack() })
+        }
+        composable(Routes.NOTIFICATIONS) {
+            NotificationScreen(onBack = { navController.popBackStack() })
         }
         composable(Routes.SETTINGS) {
             SettingsScreen(
