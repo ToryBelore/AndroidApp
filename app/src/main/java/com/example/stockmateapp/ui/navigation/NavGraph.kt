@@ -20,4 +20,5 @@ object Routes {
     fun documentDetail(id: Int) = "documents/$id"
 
     const val REQUESTS = "requests"
+    const val SETTINGS = "settings"
 }
