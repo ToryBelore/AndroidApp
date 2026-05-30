@@ -19,7 +19,9 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
+import java.security.cert.X509Certificate
 import javax.inject.Singleton
+import javax.net.ssl.X509TrustManager
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -28,7 +30,17 @@ object AppModule {
     @Provides
     @Singleton
     fun provideHttpClient(tokenStorage: TokenStorage): HttpClient {
+        val trustAll = object : X509TrustManager {
+            override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
+            override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {}
+            override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {}
+        }
         return HttpClient(CIO) {
+            engine {
+                https {
+                    trustManager = trustAll
+                }
+            }
             install(ContentNegotiation) {
                 json(Json {
                     ignoreUnknownKeys = true
