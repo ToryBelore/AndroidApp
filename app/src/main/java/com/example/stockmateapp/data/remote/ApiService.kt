@@ -16,6 +16,13 @@ class ApiService(private val client: HttpClient, private val baseUrl: String) {
         }.body()
     }
 
+    suspend fun register(email: String, password: String, fullName: String): RegisterResponse {
+        return client.post("$baseUrl/api/v1/auth/register") {
+            contentType(ContentType.Application.Json)
+            setBody(RegisterRequest(email, password, fullName))
+        }.body()
+    }
+
     suspend fun refresh(refreshToken: String): RefreshResponse {
         return client.post("$baseUrl/api/v1/auth/refresh") {
             contentType(ContentType.Application.Json)

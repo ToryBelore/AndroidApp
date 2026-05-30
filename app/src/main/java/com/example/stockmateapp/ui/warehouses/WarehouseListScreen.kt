@@ -5,11 +5,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -60,7 +62,7 @@ fun WarehouseListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Склады") },
+                title = { Text("Склады", fontWeight = FontWeight.Medium) },
                 actions = {
                     IconButton(onClick = viewModel::load) {
                         Icon(Icons.Default.Refresh, contentDescription = "Обновить")
@@ -80,27 +82,51 @@ fun WarehouseListScreen(
                     Spacer(Modifier.height(8.dp))
                     Button(onClick = viewModel::load) { Text("Повторить") }
                 }
-                else -> LazyColumn(modifier = Modifier.fillMaxSize()) {
+                else -> LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     items(uiState.warehouses, key = { it.id }) { warehouse ->
-                        ListItem(
-                            modifier = Modifier.clickable { onWarehouseClick(warehouse.id) },
-                            headlineContent = { Text(warehouse.name) },
-                            supportingContent = {
-                                Text(
-                                    warehouse.address ?: "Адрес не указан",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            },
-                            trailingContent = {
-                                if (!warehouse.isActive) {
-                                    Badge { Text("Закрыт") }
-                                }
-                            }
-                        )
-                        HorizontalDivider()
+                        WarehouseCard(warehouse, onClick = { onWarehouseClick(warehouse.id) })
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun WarehouseCard(warehouse: WarehouseDto, onClick: () -> Unit) {
+    Card(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                Icons.Filled.LocationOn,
+                contentDescription = null,
+                tint = if (warehouse.isActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(32.dp)
+            )
+            Spacer(Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    warehouse.name,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium
+                )
+                Text(
+                    warehouse.address ?: "Адрес не указан",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            if (!warehouse.isActive) {
+                Badge { Text("Закрыт") }
             }
         }
     }

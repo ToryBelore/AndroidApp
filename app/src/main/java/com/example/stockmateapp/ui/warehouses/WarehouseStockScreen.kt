@@ -12,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
@@ -120,7 +121,7 @@ fun WarehouseStockScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Остатки") },
+                title = { Text("Остатки", fontWeight = FontWeight.Medium) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Назад")
@@ -135,18 +136,24 @@ fun WarehouseStockScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                OutlinedTextField(
-                    value = uiState.searchQuery,
-                    onValueChange = viewModel::onSearchChange,
+                SearchBar(
+                    query = uiState.searchQuery,
+                    onQueryChange = viewModel::onSearchChange,
+                    onSearch = {},
+                    active = false,
+                    onActiveChange = {},
                     modifier = Modifier.weight(1f),
                     placeholder = { Text("Поиск") },
-                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                    singleLine = true
-                )
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) }
+                ) {}
                 FilterChip(
                     selected = uiState.lowStockOnly,
                     onClick = viewModel::toggleLowStock,
-                    label = { Text("Низкий") }
+                    label = { Text("Низкий") },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = MaterialTheme.colorScheme.errorContainer,
+                        selectedLabelColor = MaterialTheme.colorScheme.onErrorContainer
+                    )
                 )
             }
 
@@ -159,10 +166,14 @@ fun WarehouseStockScreen(
                     Text(uiState.error!!, color = MaterialTheme.colorScheme.error)
                 }
             } else {
-                LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
                     items(uiState.items, key = { "${it.productId}_${it.warehouseId}" }) { item ->
-                        StockItemRow(item)
-                        HorizontalDivider()
+                        StockItemCard(item)
                     }
                     if (uiState.isLoadingMore) {
                         item {
@@ -178,22 +189,35 @@ fun WarehouseStockScreen(
 }
 
 @Composable
-private fun StockItemRow(item: StockItemDto) {
-    ListItem(
-        headlineContent = { Text(item.productName) },
-        supportingContent = {
-            Text(
-                "${item.sku}${if (item.cellCode != null) " · ${item.cellCode}" else ""}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        },
-        trailingContent = {
+private fun StockItemCard(item: StockItemDto) {
+    val cardColors = if (item.isLow) {
+        CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.2f))
+    } else {
+        CardDefaults.cardColors()
+    }
+    Card(modifier = Modifier.fillMaxWidth(), colors = cardColors) {
+        Row(
+            modifier = Modifier.padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    item.productName,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium
+                )
+                Text(
+                    "${item.sku}${if (item.cellCode != null) " · ${item.cellCode}" else ""}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
             Column(horizontalAlignment = Alignment.End) {
                 Text(
                     "${item.quantity} ${item.unitShortName}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = if (item.isLow) MaterialTheme.colorScheme.error else Color.Unspecified
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = if (item.isLow) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
                 )
                 if (item.isLow) {
                     Text(
@@ -204,5 +228,5 @@ private fun StockItemRow(item: StockItemDto) {
                 }
             }
         }
-    )
+    }
 }

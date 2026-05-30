@@ -7,6 +7,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -79,7 +80,7 @@ fun SettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Настройки") },
+                title = { Text("Настройки", fontWeight = FontWeight.Medium) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Назад")
@@ -94,33 +95,41 @@ fun SettingsScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text("Подключение", style = MaterialTheme.typography.titleMedium)
-
-            OutlinedTextField(
-                value = uiState.serverUrl,
-                onValueChange = viewModel::onUrlChange,
-                label = { Text("URL сервера") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri)
-            )
-
-            Button(
-                onClick = viewModel::save,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(if (uiState.isSaved) "Сохранено" else "Сохранить")
+            // Connection section
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text("Подключение", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
+                    OutlinedTextField(
+                        value = uiState.serverUrl,
+                        onValueChange = viewModel::onUrlChange,
+                        label = { Text("URL сервера") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri)
+                    )
+                    Button(
+                        onClick = viewModel::save,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(if (uiState.isSaved) "Сохранено" else "Сохранить", fontWeight = FontWeight.Medium)
+                    }
+                }
             }
 
-            HorizontalDivider()
-
-            Text("Аккаунт", style = MaterialTheme.typography.titleMedium)
-
-            OutlinedButton(
-                onClick = viewModel::logout,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Выйти из аккаунта", color = MaterialTheme.colorScheme.error)
+            // Account section
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text("Аккаунт", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
+                    OutlinedButton(
+                        onClick = viewModel::logout,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.error
+                        )
+                    ) {
+                        Text("Выйти из аккаунта")
+                    }
+                }
             }
         }
     }

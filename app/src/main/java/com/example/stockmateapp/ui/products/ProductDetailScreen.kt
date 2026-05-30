@@ -9,6 +9,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -30,7 +31,7 @@ fun ProductDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(uiState.product?.name ?: "Товар") },
+                title = { Text(uiState.product?.name ?: "Товар", fontWeight = FontWeight.Medium) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Назад")
@@ -64,18 +65,53 @@ fun ProductDetailScreen(
                 }
                 uiState.product != null -> {
                     val product = uiState.product!!
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        DetailRow("SKU", product.sku)
-                        if (!product.barcode.isNullOrBlank()) DetailRow("Штрихкод", product.barcode)
-                        DetailRow("Категория", product.categoryName ?: "—")
-                        DetailRow("Единица", "${product.unitShortName}")
-                        DetailRow("Мин. остаток", "${product.minStock}")
-                        DetailRow("Цена закупки", "${product.purchasePrice} ₽")
-                        DetailRow("Цена продажи", "${product.sellPrice} ₽")
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        // Price card
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                            )
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Column {
+                                    Text("Закупка", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text("${product.purchasePrice} ₽", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                                }
+                                Column(horizontalAlignment = Alignment.End) {
+                                    Text("Продажа", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text("${product.sellPrice} ₽", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                                }
+                            }
+                        }
+
+                        // Details card
+                        Card(modifier = Modifier.fillMaxWidth()) {
+                            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                DetailRow("SKU", product.sku)
+                                if (!product.barcode.isNullOrBlank()) DetailRow("Штрихкод", product.barcode)
+                                DetailRow("Категория", product.categoryName ?: "—")
+                                DetailRow("Единица", product.unitShortName)
+                                DetailRow("Мин. остаток", "${product.minStock}")
+                            }
+                        }
+
                         if (!product.description.isNullOrBlank()) {
-                            Spacer(Modifier.height(8.dp))
-                            Text("Описание", style = MaterialTheme.typography.labelMedium)
-                            Text(product.description, style = MaterialTheme.typography.bodyMedium)
+                            Card(modifier = Modifier.fillMaxWidth()) {
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    Text("Описание", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
+                                    Spacer(Modifier.height(4.dp))
+                                    Text(product.description, style = MaterialTheme.typography.bodyMedium)
+                                }
+                            }
                         }
                     }
                 }
@@ -103,11 +139,11 @@ fun ProductDetailScreen(
 @Composable
 private fun DetailRow(label: String, value: String) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(value, style = MaterialTheme.typography.bodyMedium)
+        Text(value, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
     }
-    HorizontalDivider(thickness = 0.5.dp)
+    HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
 }

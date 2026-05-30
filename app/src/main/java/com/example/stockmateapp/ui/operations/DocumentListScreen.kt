@@ -1,6 +1,5 @@
 package com.example.stockmateapp.ui.operations
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -11,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
@@ -74,7 +74,7 @@ fun DocumentListScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Операции") }) },
+        topBar = { TopAppBar(title = { Text("Операции", fontWeight = FontWeight.Medium) }) },
         floatingActionButton = {
             FloatingActionButton(onClick = onAddDocument) {
                 Icon(Icons.Default.Add, contentDescription = "Создать")
@@ -108,10 +108,13 @@ fun DocumentListScreen(
                     }
                 }
             } else {
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
                     items(uiState.documents, key = { it.id }) { doc ->
-                        DocumentItem(doc, onClick = { onDocumentClick(doc.id) })
-                        HorizontalDivider()
+                        DocumentCard(doc, onClick = { onDocumentClick(doc.id) })
                     }
                 }
             }
@@ -120,7 +123,7 @@ fun DocumentListScreen(
 }
 
 @Composable
-private fun DocumentItem(doc: DocumentDto, onClick: () -> Unit) {
+private fun DocumentCard(doc: DocumentDto, onClick: () -> Unit) {
     val typeLabel = when (doc.type) {
         "RECEIPT" -> "Приход"
         "SHIPMENT" -> "Расход"
@@ -134,18 +137,38 @@ private fun DocumentItem(doc: DocumentDto, onClick: () -> Unit) {
         "CANCELLED" -> MaterialTheme.colorScheme.error
         else -> MaterialTheme.colorScheme.onSurfaceVariant
     }
-    ListItem(
-        modifier = Modifier.clickable(onClick = onClick),
-        headlineContent = { Text("$typeLabel #${doc.id}") },
-        supportingContent = {
+    val containerColor = when (doc.status) {
+        "CONDUCTED" -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.15f)
+        "CANCELLED" -> MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.15f)
+        else -> CardDefaults.cardColors().containerColor
+    }
+    Card(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = containerColor)
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    "$typeLabel #${doc.id}",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium
+                )
+                Text(
+                    doc.createdAt.take(10),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
             Text(
-                doc.createdAt.take(10),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                doc.status,
+                style = MaterialTheme.typography.labelLarge,
+                color = statusColor,
+                fontWeight = FontWeight.SemiBold
             )
-        },
-        trailingContent = {
-            Text(doc.status, style = MaterialTheme.typography.labelSmall, color = statusColor)
         }
-    )
+    }
 }

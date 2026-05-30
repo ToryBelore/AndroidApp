@@ -9,6 +9,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
@@ -60,7 +61,7 @@ fun RequestListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Заявки на пополнение") },
+                title = { Text("Заявки на пополнение", fontWeight = FontWeight.Medium) },
                 actions = {
                     IconButton(onClick = viewModel::load) {
                         Icon(Icons.Default.Refresh, contentDescription = "Обновить")
@@ -80,14 +81,19 @@ fun RequestListScreen(
                     Spacer(Modifier.height(8.dp))
                     Button(onClick = viewModel::load) { Text("Повторить") }
                 }
-                uiState.requests.isEmpty() -> Text(
-                    "Заявок нет",
-                    modifier = Modifier.align(Alignment.Center)
-                )
-                else -> LazyColumn(Modifier.fillMaxSize()) {
+                uiState.requests.isEmpty() -> Column(
+                    modifier = Modifier.align(Alignment.Center),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text("Заявок нет", style = MaterialTheme.typography.bodyLarge)
+                }
+                else -> LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
                     items(uiState.requests, key = { it.id }) { req ->
-                        RequestItem(req)
-                        HorizontalDivider()
+                        RequestCard(req)
                     }
                 }
             }
@@ -96,24 +102,45 @@ fun RequestListScreen(
 }
 
 @Composable
-private fun RequestItem(req: ReplenishmentDto) {
+private fun RequestCard(req: ReplenishmentDto) {
     val statusColor = when (req.status) {
         "DONE" -> MaterialTheme.colorScheme.primary
         "REJECTED" -> MaterialTheme.colorScheme.error
         "IN_PROGRESS" -> MaterialTheme.colorScheme.tertiary
         else -> MaterialTheme.colorScheme.onSurfaceVariant
     }
-    ListItem(
-        headlineContent = { Text(req.productName) },
-        supportingContent = {
+    val containerColor = when (req.status) {
+        "DONE" -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)
+        "REJECTED" -> MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.2f)
+        "IN_PROGRESS" -> MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.2f)
+        else -> CardDefaults.cardColors().containerColor
+    }
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = containerColor)
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    req.productName,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium
+                )
+                Text(
+                    "${req.warehouseName} · ${req.quantity} шт",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
             Text(
-                "${req.warehouseName} · ${req.quantity}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                req.status,
+                style = MaterialTheme.typography.labelLarge,
+                color = statusColor,
+                fontWeight = FontWeight.SemiBold
             )
-        },
-        trailingContent = {
-            Text(req.status, style = MaterialTheme.typography.labelSmall, color = statusColor)
         }
-    )
+    }
 }

@@ -9,6 +9,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
@@ -78,7 +79,7 @@ fun DocumentDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Документ #${uiState.document?.id ?: "..."}") },
+                title = { Text("Документ #${uiState.document?.id ?: "..."}", fontWeight = FontWeight.Medium) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Назад")
@@ -98,30 +99,61 @@ fun DocumentDetailScreen(
                 uiState.document != null -> {
                     val doc = uiState.document!!
                     LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp)) {
+                        // Info card
                         item {
-                            DocInfoRow("Тип", when (doc.type) {
-                                "RECEIPT" -> "Приход"
-                                "SHIPMENT" -> "Расход"
-                                "TRANSFER" -> "Перемещение"
-                                else -> doc.type
-                            })
-                            DocInfoRow("Статус", doc.status)
-                            DocInfoRow("Создан", doc.createdAt.take(16).replace("T", " "))
-                            if (doc.warehouseFromName != null) DocInfoRow("Со склада", doc.warehouseFromName)
-                            if (doc.warehouseToName != null) DocInfoRow("На склад", doc.warehouseToName)
-                            if (!doc.comment.isNullOrBlank()) DocInfoRow("Комментарий", doc.comment)
-                            Spacer(Modifier.height(8.dp))
-                            Text("Позиции", style = MaterialTheme.typography.titleSmall)
-                            HorizontalDivider()
+                            Card(modifier = Modifier.fillMaxWidth()) {
+                                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    Text("Информация", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
+                                    DocInfoRow("Тип", when (doc.type) {
+                                        "RECEIPT" -> "Приход"
+                                        "SHIPMENT" -> "Расход"
+                                        "TRANSFER" -> "Перемещение"
+                                        else -> doc.type
+                                    })
+                                    DocInfoRow("Статус", doc.status)
+                                    DocInfoRow("Создан", doc.createdAt.take(16).replace("T", " "))
+                                    if (doc.warehouseFromName != null) DocInfoRow("Со склада", doc.warehouseFromName)
+                                    if (doc.warehouseToName != null) DocInfoRow("На склад", doc.warehouseToName)
+                                    if (!doc.comment.isNullOrBlank()) DocInfoRow("Комментарий", doc.comment)
+                                }
+                            }
                         }
+
+                        // Items card
+                        item {
+                            Spacer(Modifier.height(12.dp))
+                            Card(modifier = Modifier.fillMaxWidth()) {
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    Text("Позиции", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
+                                }
+                            }
+                        }
+
                         items(doc.items) { item ->
-                            ListItem(
-                                headlineContent = { Text(item.productName) },
-                                supportingContent = { Text(item.sku, style = MaterialTheme.typography.bodySmall) },
-                                trailingContent = { Text("${item.quantity}") }
-                            )
-                            HorizontalDivider()
+                            Card(
+                                modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                                )
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(12.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(item.productName, fontWeight = FontWeight.Medium)
+                                        Text(item.sku, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                    Text(
+                                        "${item.quantity} шт",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
                         }
+
                         if (doc.status == "DRAFT") {
                             item {
                                 Spacer(Modifier.height(16.dp))
@@ -136,7 +168,7 @@ fun DocumentDetailScreen(
                                     Button(
                                         onClick = viewModel::conduct,
                                         modifier = Modifier.weight(1f)
-                                    ) { Text("Провести") }
+                                    ) { Text("Провести", fontWeight = FontWeight.Medium) }
                                 }
                             }
                         }
@@ -154,6 +186,6 @@ private fun DocInfoRow(label: String, value: String) {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(value, style = MaterialTheme.typography.bodyMedium)
+        Text(value, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
     }
 }

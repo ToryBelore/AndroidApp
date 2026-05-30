@@ -2,6 +2,7 @@ package com.example.stockmateapp.ui.navigation
 
 object Routes {
     const val LOGIN = "login"
+    const val REGISTER = "register"
     const val DASHBOARD = "dashboard"
     const val PRODUCT_LIST = "products"
     const val PRODUCT_DETAIL = "products/{productId}"

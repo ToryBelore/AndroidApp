@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
@@ -86,7 +87,7 @@ fun NotificationScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Уведомления") },
+                title = { Text("Уведомления", fontWeight = FontWeight.Medium) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Назад")
@@ -108,14 +109,19 @@ fun NotificationScreen(
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.align(Alignment.Center)
                 )
-                uiState.notifications.isEmpty() -> Text(
-                    "Уведомлений нет",
-                    modifier = Modifier.align(Alignment.Center)
-                )
-                else -> LazyColumn(Modifier.fillMaxSize()) {
+                uiState.notifications.isEmpty() -> Column(
+                    modifier = Modifier.align(Alignment.Center),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text("Уведомлений нет", style = MaterialTheme.typography.bodyLarge)
+                }
+                else -> LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
                     items(uiState.notifications, key = { it.id }) { notif ->
-                        NotificationItem(notif, onTap = { viewModel.markRead(notif.id) })
-                        HorizontalDivider()
+                        NotificationCard(notif, onTap = { viewModel.markRead(notif.id) })
                     }
                 }
             }
@@ -124,27 +130,41 @@ fun NotificationScreen(
 }
 
 @Composable
-private fun NotificationItem(notif: NotificationDto, onTap: () -> Unit) {
-    val bg = if (!notif.isRead) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.15f)
-    else MaterialTheme.colorScheme.surface
-
-    ListItem(
-        modifier = Modifier.background(bg),
-        headlineContent = { Text(notif.title, style = MaterialTheme.typography.bodyMedium) },
-        supportingContent = {
-            Column {
-                Text(notif.body, style = MaterialTheme.typography.bodySmall)
+private fun NotificationCard(notif: NotificationDto, onTap: () -> Unit) {
+    val cardColors = if (!notif.isRead) {
+        CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f))
+    } else {
+        CardDefaults.cardColors()
+    }
+    Card(
+        onClick = onTap,
+        modifier = Modifier.fillMaxWidth(),
+        colors = cardColors
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.Top
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    notif.title,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = if (!notif.isRead) FontWeight.SemiBold else FontWeight.Medium
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(notif.body, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Spacer(Modifier.height(4.dp))
                 Text(
                     notif.createdAt.take(16).replace("T", " "),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-        },
-        trailingContent = {
             if (!notif.isRead) {
-                Badge {}
+                Badge {
+                    Text("!")
+                }
             }
         }
-    )
+    }
 }

@@ -12,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -41,7 +42,7 @@ fun ProductListScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Товары") })
+            TopAppBar(title = { Text("Товары", fontWeight = FontWeight.Medium) })
         },
         floatingActionButton = {
             FloatingActionButton(onClick = onAddProduct) {
@@ -50,16 +51,18 @@ fun ProductListScreen(
         }
     ) { padding ->
         Column(modifier = Modifier.padding(padding)) {
-            OutlinedTextField(
-                value = uiState.searchQuery,
-                onValueChange = viewModel::onSearchChange,
+            SearchBar(
+                query = uiState.searchQuery,
+                onQueryChange = viewModel::onSearchChange,
+                onSearch = {},
+                active = false,
+                onActiveChange = {},
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 placeholder = { Text("Поиск по названию или SKU") },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                singleLine = true
-            )
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) }
+            ) {}
 
             if (uiState.isLoading) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -77,7 +80,6 @@ fun ProductListScreen(
                 LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
                     items(uiState.products, key = { it.id }) { product ->
                         ProductItem(product = product, onClick = { onProductClick(product.id) })
-                        HorizontalDivider()
                     }
                     if (uiState.isLoadingMore) {
                         item {
@@ -95,23 +97,36 @@ fun ProductListScreen(
 
 @Composable
 private fun ProductItem(product: ProductDto, onClick: () -> Unit) {
-    ListItem(
-        modifier = Modifier.clickable(onClick = onClick),
-        headlineContent = {
-            Text(product.name, maxLines = 1, overflow = TextOverflow.Ellipsis)
-        },
-        supportingContent = {
+    Card(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    product.name,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    "${product.sku} · ${product.categoryName ?: "Без категории"}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
             Text(
-                "${product.sku} · ${product.categoryName ?: "Без категории"}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        },
-        trailingContent = {
-            Text(
-                product.unitShortName,
-                style = MaterialTheme.typography.bodySmall
+                "${product.sellPrice} ₽",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.primary
             )
         }
-    )
+    }
 }

@@ -26,6 +26,7 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.example.stockmateapp.data.repository.AuthRepository
 import com.example.stockmateapp.ui.auth.LoginScreen
+import com.example.stockmateapp.ui.auth.RegisterScreen
 import com.example.stockmateapp.ui.navigation.Routes
 import com.example.stockmateapp.ui.products.ProductDetailScreen
 import com.example.stockmateapp.ui.products.ProductFormScreen
@@ -75,14 +76,30 @@ fun AppNavHost(startDestination: String) {
                     navController.navigate(Routes.DASHBOARD) {
                         popUpTo(Routes.LOGIN) { inclusive = true }
                     }
+                },
+                onRegisterClick = {
+                    navController.navigate(Routes.REGISTER)
                 }
+            )
+        }
+        composable(Routes.REGISTER) {
+            RegisterScreen(
+                onRegisterSuccess = {
+                    navController.navigate(Routes.DASHBOARD) {
+                        popUpTo(Routes.LOGIN) { inclusive = true }
+                    }
+                },
+                onBack = { navController.popBackStack() }
             )
         }
         composable(Routes.DASHBOARD) {
             DashboardScreen(
                 onProductsClick = { navController.navigate(Routes.PRODUCT_LIST) },
                 onWarehousesClick = { navController.navigate(Routes.WAREHOUSE_LIST) },
-                onDocumentsClick = { navController.navigate(Routes.DOCUMENT_LIST) }
+                onDocumentsClick = { navController.navigate(Routes.DOCUMENT_LIST) },
+                onRequestsClick = { navController.navigate(Routes.REQUESTS) },
+                onNotificationsClick = { navController.navigate(Routes.NOTIFICATIONS) },
+                onSettingsClick = { navController.navigate(Routes.SETTINGS) }
             )
         }
         composable(Routes.REQUESTS) {
