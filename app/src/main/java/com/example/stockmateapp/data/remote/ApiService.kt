@@ -1,6 +1,7 @@
 package com.example.stockmateapp.data.remote
 
 import com.example.stockmateapp.data.remote.dto.*
+import io.ktor.client.request.patch
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
@@ -148,6 +149,51 @@ class ApiService(private val client: HttpClient, private val baseUrl: String) {
     // Warehouses
     suspend fun getWarehouses(): List<WarehouseDto> =
         client.get("$baseUrl/api/v1/warehouses").body()
+
+    // Users (Admin)
+    suspend fun getUsers(): List<UserDto> =
+        client.get("$baseUrl/api/v1/users").body()
+
+    suspend fun createUser(req: CreateUserRequest): UserDto =
+        client.post("$baseUrl/api/v1/users") {
+            contentType(ContentType.Application.Json)
+            setBody(req)
+        }.body()
+
+    suspend fun updateUser(id: Int, req: UpdateUserRequest): UserDto =
+        client.patch("$baseUrl/api/v1/users/$id") {
+            contentType(ContentType.Application.Json)
+            setBody(req)
+        }.body()
+
+    // Counterparties
+    suspend fun getCounterparties(type: String? = null): List<CounterpartyDto> =
+        client.get("$baseUrl/api/v1/counterparties") {
+            if (type != null) parameter("type", type)
+        }.body()
+
+    suspend fun createCounterparty(req: CreateCounterpartyRequest): CounterpartyDto =
+        client.post("$baseUrl/api/v1/counterparties") {
+            contentType(ContentType.Application.Json)
+            setBody(req)
+        }.body()
+
+    suspend fun updateCounterparty(id: Int, req: CreateCounterpartyRequest): CounterpartyDto =
+        client.put("$baseUrl/api/v1/counterparties/$id") {
+            contentType(ContentType.Application.Json)
+            setBody(req)
+        }.body()
+
+    // Zones & Cells
+    suspend fun getZones(warehouseId: Int): List<ZoneDto> =
+        client.get("$baseUrl/api/v1/warehouses/$warehouseId/zones").body()
+
+    suspend fun getCells(zoneId: Int): List<CellDto> =
+        client.get("$baseUrl/api/v1/zones/$zoneId/cells").body()
+
+    // Batches
+    suspend fun getBatches(productId: Int): List<BatchDto> =
+        client.get("$baseUrl/api/v1/products/$productId/batches").body()
 
     suspend fun getWarehouseStock(
         warehouseId: Int, page: Int = 1, size: Int = 30,

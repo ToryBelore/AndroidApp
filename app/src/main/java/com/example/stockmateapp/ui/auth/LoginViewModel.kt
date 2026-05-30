@@ -18,7 +18,7 @@ data class LoginUiState(
 )
 
 sealed class LoginEvent {
-    data object LoginSuccess : LoginEvent()
+    data class LoginSuccess(val role: String) : LoginEvent()
 }
 
 @HiltViewModel
@@ -50,7 +50,7 @@ class LoginViewModel @Inject constructor(
             _uiState.value = state.copy(isLoading = true, error = null)
             val result = authRepository.login(state.email.trim(), state.password)
             if (result.isSuccess) {
-                _event.value = LoginEvent.LoginSuccess
+                _event.value = LoginEvent.LoginSuccess(authRepository.getRole() ?: "")
             } else {
                 val msg = result.exceptionOrNull()?.message ?: "Ошибка входа"
                 _uiState.value = _uiState.value.copy(isLoading = false, error = msg)

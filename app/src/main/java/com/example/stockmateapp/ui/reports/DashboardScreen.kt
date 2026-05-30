@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AdminPanelSettings
+import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
@@ -57,12 +59,15 @@ class DashboardViewModel @Inject constructor(private val api: ApiService) : View
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
+    role: String = "",
     onProductsClick: () -> Unit,
     onWarehousesClick: () -> Unit,
     onDocumentsClick: () -> Unit,
     onRequestsClick: () -> Unit = {},
     onNotificationsClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
+    onCounterpartiesClick: () -> Unit = {},
+    onUsersClick: () -> Unit = {},
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -180,7 +185,7 @@ fun DashboardScreen(
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.primary
                     )
-                    QuickNavGrid(onProductsClick, onWarehousesClick, onDocumentsClick, onRequestsClick)
+                    QuickNavGrid(role, onProductsClick, onWarehousesClick, onDocumentsClick, onRequestsClick, onCounterpartiesClick, onUsersClick)
                 }
             }
         }
@@ -222,25 +227,39 @@ private fun MetricCard(
 
 @Composable
 private fun QuickNavGrid(
+    role: String,
     onProductsClick: () -> Unit,
     onWarehousesClick: () -> Unit,
     onDocumentsClick: () -> Unit,
-    onRequestsClick: () -> Unit
+    onRequestsClick: () -> Unit,
+    onCounterpartiesClick: () -> Unit,
+    onUsersClick: () -> Unit
 ) {
+    val isAdmin = role == "Admin"
+    val isManager = role == "Manager"
+    val isWarehouse = role == "Warehouse"
+    val isAnalyst = role == "Analyst"
+
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             NavCard("Товары", Icons.Filled.Inventory2, Modifier.weight(1f), onProductsClick)
             NavCard("Склады", Icons.Outlined.Inventory2, Modifier.weight(1f), onWarehousesClick)
         }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            NavCard("Операции", Icons.Filled.Inventory2, Modifier.weight(1f), onDocumentsClick)
-            NavCard("Заявки", Icons.Outlined.Inventory2, Modifier.weight(1f), onRequestsClick)
+        if (!isAnalyst) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                NavCard("Операции", Icons.Filled.Inventory2, Modifier.weight(1f), onDocumentsClick)
+                NavCard("Заявки", Icons.Outlined.Inventory2, Modifier.weight(1f), onRequestsClick)
+            }
+        }
+        if (isAdmin || isManager) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                NavCard("Контрагенты", Icons.Filled.Business, Modifier.weight(1f), onCounterpartiesClick)
+                if (isAdmin) {
+                    NavCard("Пользователи", Icons.Filled.AdminPanelSettings, Modifier.weight(1f), onUsersClick)
+                } else {
+                    Spacer(Modifier.weight(1f))
+                }
+            }
         }
     }
 }

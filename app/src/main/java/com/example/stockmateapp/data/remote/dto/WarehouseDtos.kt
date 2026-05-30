@@ -27,6 +27,18 @@ data class StockItemDto(
 )
 
 @Serializable
+data class ZoneDto(val id: Int, val warehouseId: Int, val name: String)
+
+@Serializable
+data class CellDto(val id: Int, val zoneId: Int, val code: String)
+
+@Serializable
+data class CreateZoneRequest(val name: String)
+
+@Serializable
+data class CreateCellRequest(val code: String)
+
+@Serializable
 data class StockListResponse(
     val items: List<StockItemDto>,
     val total: Int,

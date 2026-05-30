@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.ViewModule
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -55,6 +56,7 @@ class WarehouseListViewModel @Inject constructor(
 @Composable
 fun WarehouseListScreen(
     onWarehouseClick: (Int) -> Unit,
+    onZonesClick: (Int) -> Unit = {},
     viewModel: WarehouseListViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -88,7 +90,11 @@ fun WarehouseListScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(uiState.warehouses, key = { it.id }) { warehouse ->
-                        WarehouseCard(warehouse, onClick = { onWarehouseClick(warehouse.id) })
+                        WarehouseCard(
+                            warehouse,
+                            onClick = { onWarehouseClick(warehouse.id) },
+                            onZonesClick = { onZonesClick(warehouse.id) }
+                        )
                     }
                 }
             }
@@ -97,7 +103,7 @@ fun WarehouseListScreen(
 }
 
 @Composable
-private fun WarehouseCard(warehouse: WarehouseDto, onClick: () -> Unit) {
+private fun WarehouseCard(warehouse: WarehouseDto, onClick: () -> Unit, onZonesClick: () -> Unit = {}) {
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth()
@@ -124,6 +130,9 @@ private fun WarehouseCard(warehouse: WarehouseDto, onClick: () -> Unit) {
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+            }
+            IconButton(onClick = onZonesClick) {
+                Icon(Icons.Filled.ViewModule, contentDescription = "Зоны", tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             if (!warehouse.isActive) {
                 Badge { Text("Закрыт") }

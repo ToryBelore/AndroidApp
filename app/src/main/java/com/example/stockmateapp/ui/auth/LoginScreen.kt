@@ -19,7 +19,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
 fun LoginScreen(
-    onLoginSuccess: () -> Unit,
+    onLoginSuccess: (role: String) -> Unit,
     onRegisterClick: () -> Unit,
     viewModel: LoginViewModel = hiltViewModel()
 ) {
@@ -27,9 +27,10 @@ fun LoginScreen(
     val event by viewModel.event.collectAsStateWithLifecycle()
 
     LaunchedEffect(event) {
-        if (event is LoginEvent.LoginSuccess) {
+        val e = event
+        if (e is LoginEvent.LoginSuccess) {
             viewModel.consumeEvent()
-            onLoginSuccess()
+            onLoginSuccess(e.role)
         }
     }
 

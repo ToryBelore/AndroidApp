@@ -5,6 +5,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,7 +19,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 @Composable
 fun ProductDetailScreen(
     onBack: () -> Unit,
-    onEdit: (Int) -> Unit,
+    onEdit: ((Int) -> Unit)? = null,
+    onBatches: ((Int) -> Unit)? = null,
     viewModel: ProductDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -39,11 +41,18 @@ fun ProductDetailScreen(
                 },
                 actions = {
                     uiState.product?.let { product ->
-                        IconButton(onClick = { onEdit(product.id) }) {
-                            Icon(Icons.Default.Edit, contentDescription = "Редактировать")
+                        onBatches?.let {
+                            IconButton(onClick = { it(product.id) }) {
+                                Icon(Icons.Default.Layers, contentDescription = "Партии")
+                            }
                         }
-                        IconButton(onClick = { showDeleteDialog = true }) {
-                            Icon(Icons.Default.Delete, contentDescription = "Удалить")
+                        onEdit?.let {
+                            IconButton(onClick = { it(product.id) }) {
+                                Icon(Icons.Default.Edit, contentDescription = "Редактировать")
+                            }
+                            IconButton(onClick = { showDeleteDialog = true }) {
+                                Icon(Icons.Default.Delete, contentDescription = "Удалить")
+                            }
                         }
                     }
                 }

@@ -111,7 +111,7 @@ class StockMateUnitTests {
         vm.onPasswordChange("password")
         vm.login()
         advanceUntilIdle()
-        assertEquals(LoginEvent.LoginSuccess, vm.event.value)
+        assertTrue(vm.event.value is LoginEvent.LoginSuccess)
     }
 
     @Test

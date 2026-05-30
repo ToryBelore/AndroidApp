@@ -23,7 +23,7 @@ import com.example.stockmateapp.data.remote.dto.ProductDto
 @Composable
 fun ProductListScreen(
     onProductClick: (Int) -> Unit,
-    onAddProduct: () -> Unit,
+    onAddProduct: (() -> Unit)? = null,
     viewModel: ProductListViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -45,8 +45,10 @@ fun ProductListScreen(
             TopAppBar(title = { Text("Товары", fontWeight = FontWeight.Medium) })
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onAddProduct) {
-                Icon(Icons.Default.Add, contentDescription = "Добавить товар")
+            if (onAddProduct != null) {
+                FloatingActionButton(onClick = onAddProduct) {
+                    Icon(Icons.Default.Add, contentDescription = "Добавить товар")
+                }
             }
         }
     ) { padding ->
