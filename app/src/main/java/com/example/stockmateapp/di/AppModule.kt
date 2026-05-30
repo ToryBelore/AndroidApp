@@ -2,6 +2,7 @@ package com.example.stockmateapp.di
 
 import android.content.Context
 import com.example.stockmateapp.data.local.AppDatabase
+import com.example.stockmateapp.data.local.ServerUrlStorage
 import com.example.stockmateapp.data.local.TokenStorage
 import com.example.stockmateapp.data.remote.ApiService
 import dagger.Module
@@ -15,6 +16,8 @@ import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.serialization.kotlinx.json.*
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import javax.inject.Singleton
 
@@ -50,8 +53,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideApiService(client: HttpClient, @ApplicationContext context: Context): ApiService {
-        val url = "http://10.0.2.2:8080"
+    fun provideApiService(client: HttpClient, serverUrlStorage: ServerUrlStorage): ApiService {
+        val url = runBlocking { serverUrlStorage.serverUrl.firstOrNull() } ?: ServerUrlStorage.DEFAULT_URL
         return ApiService(client, url)
     }
 
